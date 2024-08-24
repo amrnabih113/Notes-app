@@ -1,6 +1,7 @@
 // ignore_for_file: avoid_print
 
 import 'package:app7/Database/database.dart';
+import 'package:app7/Database/globals.dart';
 import 'package:app7/pages/signup.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -54,6 +55,7 @@ class _LoginPageState extends State<LoginPage> {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       bool result = await prefs.setInt("userid", userid);
+      print("user id = ${prefs.getInt("userid")}, == $userid");
       if (!result) {
         print("Failed to save userid");
       }
@@ -195,8 +197,8 @@ class _LoginPageState extends State<LoginPage> {
                   if (response.isEmpty) {
                     _showerrordialog();
                   } else {
-                    final userId = response[0]['ID'];
-                    rememberMe ? saveuserid(userId) : null;
+                    userid = response[0]['ID'];
+                    rememberMe ? saveuserid(userid!) : null;
                     // ignore: use_build_context_synchronously
                     Navigator.of(context).pushReplacementNamed("homepage");
                   }
@@ -245,4 +247,3 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 }
-

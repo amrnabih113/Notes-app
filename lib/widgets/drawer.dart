@@ -1,3 +1,4 @@
+import 'package:app7/Database/globals.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -9,6 +10,12 @@ class MyDrawer extends StatefulWidget {
 }
 
 class _MyDrawerState extends State<MyDrawer> {
+  void _clearNotes() {
+    setState(() {
+      notes.clear(); // Clear the notes list
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Drawer(
@@ -62,8 +69,12 @@ class _MyDrawerState extends State<MyDrawer> {
           ),
           InkWell(
             onTap: () async {
+              setState(() {
+                _clearNotes();
+              });
               SharedPreferences prefs = await SharedPreferences.getInstance();
               bool result = await prefs.setInt("userid", -1);
+
               print("log out userid = ${prefs.getInt("userid")}");
               if (!result) {
                 print("Failed to save userid");

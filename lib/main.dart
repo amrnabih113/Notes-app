@@ -1,3 +1,4 @@
+import 'package:app7/Database/globals.dart';
 import 'package:app7/pages/homepage.dart';
 import 'package:app7/pages/login.dart';
 import 'package:flutter/material.dart';
@@ -15,7 +16,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  int? userid;
+  
 
   @override
   void initState() {

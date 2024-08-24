@@ -1,9 +1,8 @@
-import 'package:app7/Database/globals.dart';
-import 'package:app7/widgets/drawer.dart';
-import 'package:flutter/material.dart';
 import 'package:app7/Database/database.dart';
 import 'package:app7/widgets/addbutton.dart';
 import 'package:app7/widgets/bottomnavigationbar.dart';
+import 'package:app7/widgets/drawer.dart';
+import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key, required this.user_id});
@@ -15,9 +14,9 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final SqlDb _myDb = SqlDb();
-
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final FocusNode _focusNode = FocusNode();
+  List<Map<String, dynamic>> notes = [];
 
   Future<void> _getData(int userId) async {
     List response = await _myDb.getdata('''
@@ -27,7 +26,7 @@ class _HomePageState extends State<HomePage> {
     ''', [userId]);
 
     setState(() {
-      notes = response;
+      notes = List<Map<String, dynamic>>.from(response); // Ensure mutable list
     });
   }
 
@@ -36,6 +35,18 @@ class _HomePageState extends State<HomePage> {
       DELETE FROM "NOTES"
       WHERE "ID" = ?
     ''', [noteId]);
+  }
+
+  void _handleNewNote(Map<String, dynamic> newNote) {
+    setState(() {
+      notes.add(newNote);
+    });
+  }
+
+  void _clearNotes() {
+    setState(() {
+      notes.clear(); // Clear the notes list
+    });
   }
 
   @override
@@ -54,7 +65,10 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      floatingActionButton: AddButton(userid: widget.user_id),
+      floatingActionButton: AddButton(
+        userid: widget.user_id,
+        onNoteAdded: _handleNewNote, // Pass the callback function
+      ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
       bottomNavigationBar: const Bottomnavigationbar(),
       appBar: AppBar(
@@ -65,6 +79,7 @@ class _HomePageState extends State<HomePage> {
           style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
         ),
         toolbarHeight: 80,
+       
       ),
       drawer: const MyDrawer(),
       body: GestureDetector(
@@ -87,8 +102,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
                 hintText: "Search your notes",
-                hintStyle: const WidgetStatePropertyAll(
-                    TextStyle(color: Colors.grey, fontSize: 18)),
+                // hintStyle: const TextStyle(color: Colors.grey, fontSize: 18),
               ),
               const SizedBox(height: 10),
               Expanded(
@@ -105,27 +119,37 @@ class _HomePageState extends State<HomePage> {
                     final Color noteColor = Color(int.parse(note['COLOR']));
                     final bool isDarkBackground =
                         noteColor.computeLuminance() < 0.5;
+
                     return Dismissible(
                       key: Key(noteId.toString()), // Use a unique key
                       onDismissed: (direction) async {
                         // Delete from the database
                         await _deleteNoteFromDb(noteId);
 
-                        // Remove from the list
+                        // Remove from the global notes list and update the UI
                         setState(() {
                           notes.removeAt(i);
                         });
 
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text("${note['TITLE']} dismissed")),
+                          SnackBar(
+                              content: Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 10.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text("${note['TITLE']} deleted"),
+                                InkWell(
+                                  child: const Text("undo"),
+                                  onTap: () {},
+                                )
+                              ],
+                            ),
+                          )),
                         );
                       },
-                      background: Container(
-                        color: Colors.red,
-                        alignment: Alignment.centerLeft,
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        child: const Icon(Icons.delete, color: Colors.white),
-                      ),
+
                       child: Material(
                         borderRadius: BorderRadius.circular(20),
                         elevation: 6,

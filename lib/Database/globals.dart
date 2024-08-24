@@ -1,3 +1,4 @@
 library globals;
 
-  List notes = [];
+List<Map<String, dynamic>> notes = [];
+int? userid;

@@ -1,11 +1,10 @@
 import 'package:app7/Database/database.dart';
-import 'package:app7/Database/globals.dart';
-
 import 'package:flutter/material.dart';
 
 class Addnote extends StatefulWidget {
-  Addnote({super.key, required this.userid});
-  int userid;
+  const Addnote({super.key, required this.userid, required this.onNoteAdded});
+  final int userid;
+  final Function(Map<String, dynamic>) onNoteAdded; // Callback
 
   @override
   State<Addnote> createState() => _AddnoteState();
@@ -37,7 +36,7 @@ class _AddnoteState extends State<Addnote> {
   }
 
   Future<void> saveNote() async {
-    await myDb.insert(
+    final noteId = await myDb.insert(
       'INSERT INTO "NOTES" ("TITLE", "NOTE", "COLOR", "USER_ID") VALUES (?, ?, ?, ?)',
       [
         titleController.text,
@@ -46,15 +45,15 @@ class _AddnoteState extends State<Addnote> {
         widget.userid
       ],
     );
-  }
-
-  void addnote() {
-    notes.add({
+    final newNote = {
+      "ID": noteId,
       "TITLE": titleController.text,
       "NOTE": noteController.text,
       "COLOR": selectedColor.value.toString(),
       "USER_ID": widget.userid,
-    });
+      "DATE": dateTime.toIso8601String(), // Include the date
+    };
+    widget.onNoteAdded(newNote); // Notify HomePage
   }
 
   @override
@@ -98,12 +97,10 @@ class _AddnoteState extends State<Addnote> {
                                       setState(() {
                                         selectedColor = colors[index];
                                       });
-                                      Navigator.pop(
-                                          context); // Close the bottom sheet
+                                      Navigator.pop(context);
                                     },
                                     child: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 4.0),
+                                      padding: const EdgeInsets.symmetric(horizontal: 4.0),
                                       child: CircleAvatar(
                                         radius: 15,
                                         backgroundColor: colors[index],
@@ -134,8 +131,7 @@ class _AddnoteState extends State<Addnote> {
               },
               child: const Icon(Icons.add_circle_outline_rounded),
             ),
-            Text("${dateTime.toLocal()}"
-                .split(' ')[0]), // Displays the date in a cleaner format
+            Text("${dateTime.toLocal()}".split(' ')[0]),
             InkWell(
               onTap: () {
                 showModalBottomSheet(
@@ -180,10 +176,7 @@ class _AddnoteState extends State<Addnote> {
             child: InkWell(
               onTap: () async {
                 await saveNote();
-                setState(() {
-                  addnote();
-                });
-                Navigator.pop(context); // Close the Addnote screen after saving
+                Navigator.pop(context); // Close screen after saving
               },
               child: const Icon(Icons.done_rounded),
             ),
