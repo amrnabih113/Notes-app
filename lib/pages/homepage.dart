@@ -43,12 +43,6 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  void _clearNotes() {
-    setState(() {
-      notes.clear(); // Clear the notes list
-    });
-  }
-
   @override
   void initState() {
     super.initState();
@@ -74,9 +68,9 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         leading: null,
-        title: const Text(
+        title:  const Text(
           "Notes",
-          style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+          style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold,),
         ),
         toolbarHeight: 80,
        

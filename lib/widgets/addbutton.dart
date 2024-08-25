@@ -16,8 +16,8 @@ class _AddButtonState extends State<AddButton> {
     return Padding(
       padding: const EdgeInsets.all(20.0),
       child: FloatingActionButton(
-        onPressed: () async {
-          final newNote = await Navigator.push(
+        onPressed: ()  {
+           Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => Addnote(
@@ -27,9 +27,6 @@ class _AddButtonState extends State<AddButton> {
             ),
           );
 
-          if (newNote != null) {
-            widget.onNoteAdded(newNote);
-          }
         },
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
         backgroundColor: const Color(0xff4e33ff),
